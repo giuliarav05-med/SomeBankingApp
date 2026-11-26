@@ -2,11 +2,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-
 RUN apk add --no-cache git
 
-
-RUN git clone https://github.com/giuliarav05-med/SomeBankingApp.git temp_repo \
+RUN git clone https://github.com/giuliarav05-med/SomeBankingApp temp_repo \
     && mv temp_repo/frontend/* . \
     && rm -rf temp_repo
 
