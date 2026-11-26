@@ -2,12 +2,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+
+RUN apk add --no-cache git
+
+
+RUN git clone https://github.com/giuliarav05-med/SomeBankingApp.git temp_repo \
+    && mv temp_repo/frontend/* . \
+    && rm -rf temp_repo
+
 RUN npm install
 
+EXPOSE 80
 
-COPY . .
-
-EXPOSE 4200
-
-CMD ["npm", "start", "--", "--host", "0.0.0.0"]
+CMD ["npm", "start", "--", "--host", "0.0.0.0", "--port", "80"]
