@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 
-# --- Database Setup ---
+
 
 DATABASE_URL = "sqlite:///./bank.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -30,7 +30,7 @@ def get_db():
         db.close()
 
 
-# --- Database Models ---
+
 
 
 class TransactionType(str, Enum):
@@ -90,7 +90,7 @@ class TransactionLog(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# --- Pydantic Schemas ---
+
 
 
 class UserCreate(BaseModel):
@@ -145,7 +145,7 @@ class CardPaymentRequest(BaseModel):
     amount: Decimal = Field(gt=0, decimal_places=2)
 
 
-# --- Helper Generators ---
+
 
 
 def generate_iban(country_code="DE") -> str:
@@ -157,11 +157,11 @@ def generate_card_number() -> str:
     return "4000" + "".join(random.choices(string.digits, k=12))
 
 
-# --- FastAPI Application ---
+
 
 app = FastAPI(title="Simple Banking Backend API", version="1.0.0")
 
-# Add this right after app = FastAPI(...) in your Python code:
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:4200"],
@@ -183,11 +183,11 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    # Automatically provision a checking account with a generated IBAN
+   
     initial_account = BankAccount(
         user_id=user.id,
         iban=generate_iban(),
-        balance=Decimal("1000.00"),  # Starter balance for testing
+        balance=Decimal("1000.00"),  
     )
     db.add(initial_account)
     db.commit()
@@ -217,7 +217,7 @@ def transfer_via_iban(transfer: IBANTransferRequest, db: Session = Depends(get_d
     if sender.balance < transfer.amount:
         raise HTTPException(status_code=400, detail="Insufficient funds")
 
-    # Atomic state mutation
+    
     sender.balance -= transfer.amount
     receiver.balance += transfer.amount
 
@@ -273,7 +273,7 @@ def recharge_card(payload: CardRechargeRequest, db: Session = Depends(get_db)):
     if account.balance < payload.amount:
         raise HTTPException(status_code=400, detail="Insufficient funds in bank account")
 
-    # Transfer funds from bank account into prepaid card
+    
     account.balance -= payload.amount
     card.balance += payload.amount
 
@@ -305,7 +305,7 @@ def make_card_payment(payment: CardPaymentRequest, db: Session = Depends(get_db)
     if card.is_active != "ACTIVE":
         raise HTTPException(status_code=400, detail="Card is blocked or inactive")
 
-    # Card verification check
+   
     if (
         card.cvv != payment.cvv
         or card.expiry_month != payment.expiry_month
@@ -313,11 +313,11 @@ def make_card_payment(payment: CardPaymentRequest, db: Session = Depends(get_db)
     ):
         raise HTTPException(status_code=400, detail="Invalid card verification details")
 
-    # Balance check
+    
     if card.balance < payment.amount:
         raise HTTPException(status_code=400, detail="Declined: Insufficient card balance")
 
-    # Process deduction
+  
     card.balance -= payment.amount
 
     log = TransactionLog(
