@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/micheleottonello-min/SomeBankingApp.git'
+                git branch: 'main', url: 'https://github.com/giuliarav05-med/SomeBankingApp.git'
             }
         }
         stage('Build Backend') {
